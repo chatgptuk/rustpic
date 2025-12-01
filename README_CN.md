@@ -9,10 +9,10 @@ RustPic 是一个基于 Rust 编写的轻量级、高性能图床解决方案。
 ## 界面预览
 
 ### 登录页
-![登录页](https://lyduwss.github.io/2_1764628787646.png/1_1764628754790.png)
+![登录页](https://lyduwss.github.io/1_1764628754790.png)
 
 ### 仪表盘
-![仪表盘](https://lyduwss.github.io/2_1764628787646.png/2_1764628787646.png)
+![仪表盘](https://lyduwss.github.io/2_1764628787646.png)
 
 ## 功能特性
 

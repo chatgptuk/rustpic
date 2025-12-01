@@ -9,10 +9,10 @@ RustPic is a lightweight, high-performance image hosting solution written in Rus
 ## Screenshots
 
 ### Login
-![Login Page](https://lyduwss.github.io/2_1764628787646.png/1_1764628754790.png)
+![Login Page](https://lyduwss.github.io/1_1764628754790.png)
 
 ### Dashboard
-![Dashboard](https://lyduwss.github.io/2_1764628787646.png/2_1764628787646.png)
+![Dashboard](https://lyduwss.github.io/2_1764628787646.png)
 
 ## Features
 
