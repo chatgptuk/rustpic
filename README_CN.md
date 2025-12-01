@@ -35,7 +35,7 @@ RustPic 是一个基于 Rust 编写的轻量级、高性能图床解决方案。
 
 1.  克隆仓库：
     ```bash
-    git clone https://github.com/yourusername/rustpic.git
+    git clone https://github.com/chatgptuk/rustpic.git
     cd rustpic
     ```
 

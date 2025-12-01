@@ -35,7 +35,7 @@ RustPic is a lightweight, high-performance image hosting solution written in Rus
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/rustpic.git
+    git clone https://github.com/chatgptuk/rustpic.git
     cd rustpic
     ```
 
