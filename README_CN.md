@@ -4,6 +4,8 @@
 
 RustPic 是一个基于 Rust 编写的轻量级、高性能图床解决方案。它利用你的 GitHub 仓库作为存储后端，为你的博客、网站或个人使用提供快速且免费的图片和文件托管服务。
 
+**[在线演示](https://pic.chatgpt.org.uk)**
+
 ![RustPic Dashboard](assets/favicon.svg)
 
 ## 界面预览

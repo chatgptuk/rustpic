@@ -4,6 +4,8 @@
 
 RustPic is a lightweight, high-performance image hosting solution written in Rust. It leverages your GitHub repository as storage, providing a fast and free way to host images and files for your blogs, websites, or personal use.
 
+**[Live Demo](https://pic.chatgpt.org.uk)**
+
 ![RustPic Dashboard](assets/favicon.svg)
 
 ## Screenshots
