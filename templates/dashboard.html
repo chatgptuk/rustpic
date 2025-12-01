@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="card">
+    <header>
+        <h2>{{ username }}</h2>
+        <a href="/logout" class="logout">Sign Out</a>
+    </header>
+
+    <div class="upload-section">
+
+        {% if let Some(err) = error %}
+        <div class="error">{{ err }}</div>
+        {% endif %}
+
+        {% if let Some(link) = uploaded_link %}
+        <div class="success-links">
+            <h3>✓ Upload Complete!</h3>
+
+            <div class="link-item">
+                <label>CDN Link (jsDelivr)</label>
+                <div class="link-box">
+                    <input type="text" value="{{ link }}" readonly onclick="this.select()">
+                    <button onclick="copyToClipboard('{{ link }}', 'btn-cdn')" id="btn-cdn"
+                        class="copy-btn">Copy</button>
+                    <a href="{{ link }}" target="_blank" class="open-btn">Open</a>
+                </div>
+            </div>
+
+            {% if let Some(pages) = pages_link %}
+            <div class="link-item">
+                <label>GitHub Pages Link</label>
+                <div class="link-box">
+                    <input type="text" value="{{ pages }}" readonly onclick="this.select()">
+                    <button onclick="copyToClipboard('{{ pages }}', 'btn-pages')" id="btn-pages"
+                        class="copy-btn">Copy</button>
+                    <a href="{{ pages }}" target="_blank" class="open-btn">Open</a>
+                </div>
+                <small>Note: GitHub Pages may take 1-2 minutes to deploy new files.</small>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="repo" value="{{ repo.as_deref().unwrap_or("") }}">
+
+            <div>
+                <label for="path">Folder Path (Optional)</label>
+                <input type="text" id="path" name="path" placeholder="e.g. images/2024/">
+            </div>
+
+            <label>File</label>
+            <div class="drop-zone" id="dropZone">
+                <input type="file" name="file" id="file" required onchange="updateFileName(this)">
+                <p id="fileName">Drag & drop or click to select file</p>
+            </div>
+
+            <button type="submit">Upload File</button>
+        </form>
+    </div>
+
+    {% if !images.is_empty() %}
+    <div class="images-section">
+        <h3>Your Images and Files</h3>
+        <div class="image-grid">
+            {% for image in images %}
+            <div class="image-card">
+                <div class="image-preview">
+                    {% let name_lower = image.name.to_lowercase() %}
+                    {% let is_image = name_lower.ends_with(".png") || name_lower.ends_with(".jpg") ||
+                    name_lower.ends_with(".jpeg") || name_lower.ends_with(".gif") || name_lower.ends_with(".webp") ||
+                    name_lower.ends_with(".heic") || name_lower.ends_with(".heif") || name_lower.ends_with(".bmp") ||
+                    name_lower.ends_with(".svg") %}
+
+                    {% if is_image %}
+                    {% if let Some(url) = image.download_url %}
+                    <a href="{{ url }}" target="_blank" title="Click to view full size">
+                        <img src="{{ url }}" alt="{{ image.name }}" loading="lazy">
+                    </a>
+                    {% else %}
+                    <div class="no-preview">{{ image.name }}</div>
+                    {% endif %}
+                    {% else %}
+                    <div class="no-preview"
+                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                            <polyline points="13 2 13 9 20 9"></polyline>
+                        </svg>
+                        <span style="margin-top: 8px; font-size: 0.8rem;">{{
+                            image.name.split('.').last().unwrap_or("FILE").to_uppercase() }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="image-info">
+                    <span class="image-name" title="{{ image.name }}">{{ image.name }}</span>
+                    <div class="image-actions">
+                        <!-- jsDelivr CDN Link (or Raw Link if > 20MB) -->
+                        {% if image.size > 20971520 %}
+                        <!-- > 20MB, use Raw Link -->
+                        <button class="action-btn copy"
+                            onclick="copyToClipboard('{{ image.download_url.as_deref().unwrap_or("") }}', 'btn-cdn-{{ image.sha }}')"
+                            id="btn-cdn-{{ image.sha }}" title="Copy Raw Link (>20MB)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            </svg>
+                        </button>
+                        {% else %}
+                        <!-- <= 20MB, use jsDelivr -->
+                        <button class="action-btn copy"
+                            onclick="copyToClipboard('https://cdn.jsdelivr.net/gh/{{ username }}/{{ repo.as_deref().unwrap_or("
+                            rustpic-storage") }}/{{ image.path }}', 'btn-cdn-{{ image.sha }}' )"
+                            id="btn-cdn-{{ image.sha }}" title="Copy CDN Link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            </svg>
+                        </button>
+                        {% endif %}
+
+                        <!-- GitHub Pages Link -->
+                        {% if let Some(pages) = pages_link %}
+                        {% let pages_url = format!("{}/{}", pages, image.path) %}
+                        <button class="action-btn copy"
+                            onclick="copyToClipboard('{{ pages_url }}', 'btn-pages-{{ image.sha }}')"
+                            id="btn-pages-{{ image.sha }}" title="Copy GitHub Pages Link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path
+                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                                </path>
+                            </svg>
+                        </button>
+                        {% endif %}
+
+                        <!-- Delete Button -->
+                        <form action="/delete" method="post" onsubmit="return confirm('Delete this file?');"
+                            style="margin:0; flex: 0;">
+                            <input type="hidden" name="repo" value="{{ repo.as_deref().unwrap_or("") }}">
+                            <input type="hidden" name="path" value="{{ image.path }}">
+                            <input type="hidden" name="sha" value="{{ image.sha }}">
+                            <button type="submit" class="action-btn delete" title="Delete File">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                    </path>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script src="/assets/clipboard.js?v={{ version }}"></script>
+<script>
+    function updateFileName(input) {
+        const fileName = input.files[0]?.name;
+        if (fileName) {
+            document.getElementById('fileName').textContent = fileName;
+            document.getElementById('dropZone').style.borderColor = 'var(--primary)';
+            document.getElementById('dropZone').style.background = 'rgba(59, 130, 246, 0.1)';
+        }
+    }
+</script>
+{% endblock %}
